@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Weihnachts-Gutscheinreise für Risna 🎄</title>
+  <style>
+    :root{
+      --bg1:#071a12;
+      --bg2:#0f2b20;
+      --card:rgba(255,255,255,.10);
+      --card2:rgba(255,255,255,.14);
+      --text:#f7f3ea;
+      --muted:#d8cfbe;
+      --gold:#f2d27a;
+      --red:#e84b4b;
+      --green:#2fd07a;
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --tap: 56px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1100px 700px at 20% 10%, #1f5a41 0%, transparent 55%),
+        radial-gradient(900px 650px at 90% 15%, #6a1b1b 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    a{ color: var(--gold); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    /* snow */
+    .snow{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+    .flake{
+      position:absolute; top:-10px;
+      width:6px; height:6px; border-radius:50%;
+      background: rgba(255,255,255,.9);
+      filter: drop-shadow(0 0 6px rgba(255,255,255,.25));
+      animation: fall linear infinite;
+      opacity:.9;
+    }
+    @keyframes fall{
+      0% { transform: translateY(-20px) translateX(0); }
+      100% { transform: translateY(calc(100vh + 50px)) translateX(var(--drift)); }
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width:960px;
+      margin:0 auto;
+      padding:16px 14px calc(92px + env(safe-area-inset-bottom));
+    }
+
+    header{
+      background: linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius);
+      padding:16px 14px;
+      box-shadow: var(--shadow);
+    }
+    header h1{ margin:0 0 6px 0; font-size:22px; letter-spacing:.2px; }
+    header p{ margin:0; color:var(--muted); line-height:1.35; font-size:14px; }
+
+    .topRow{
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+      margin-top:10px;
+    }
+    .badge{
+      padding:8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    .progress{
+      margin-top:10px;
+      display:flex; gap:8px; flex-wrap:wrap;
+      align-items:center;
+    }
+    .chip{
+      display:flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .dot{ width:9px; height:9px; border-radius:50%; background: rgba(255,255,255,.18); outline:2px solid rgba(255,255,255,.10); }
+    .chip.active{ color: var(--text); border-color: rgba(242,210,122,.45); }
+    .chip.active .dot{ background: var(--gold); }
+    .chip.done .dot{ background: var(--green); }
+
+    .card{
+      margin-top:12px;
+      background: linear-gradient(180deg, var(--card), transparent);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+
+    .sectionTitle{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      margin-bottom:10px;
+    }
+    .sectionTitle h2{ margin:0; font-size:16px; }
+    .hint{ margin:2px 0 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+
+    /* Mobile-first: 1 column, big tappable */
+    .choices{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius: 16px;
+      padding:14px 14px;
+      min-height: var(--tap);
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      text-align:left;
+      font-weight: 900;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.12); border-color: rgba(242,210,122,.45); }
+    .btn.selected{
+      background: linear-gradient(180deg, rgba(232,75,75,.22), rgba(47,208,122,.10));
+      border-color: rgba(242,210,122,.60);
+    }
+    .btn small{ display:block; margin-top:5px; color: var(--muted); font-weight: 700; }
+
+    .pillRow{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill b{ color: var(--text); }
+
+    /* Restaurants (single selection) */
+    .restaurants{ display:grid; grid-template-columns: 1fr; gap:10px; }
+    .rItem{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding:12px;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      cursor:pointer;
+    }
+    .rItem.selected{
+      border-color: rgba(242,210,122,.60);
+      background: rgba(242,210,122,.10);
+    }
+    .rLeft{ min-width:0; }
+    .rName{ margin:0 0 4px 0; font-weight: 950; font-size: 14px; }
+    .rMeta{ margin:0; color: var(--muted); font-size: 12px; line-height:1.35; }
+    .rLinks{ margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+    .tag{
+      display:inline-flex; align-items:center;
+      padding:6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 950;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.20);
+      color: var(--gold);
+      white-space:nowrap;
+      height: 28px;
+    }
+    .tag.urig{ color:#ffd6a6; }
+    .tag.sushi{ color:#b7f7ff; }
+
+    /* Voucher */
+    .voucher{
+      margin-top:12px;
+      border-radius: 22px;
+      border: 1px solid rgba(242,210,122,.55);
+      background:
+        radial-gradient(700px 400px at 15% 20%, rgba(242,210,122,.20), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.10));
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .voucherTop{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-start; }
+    .voucher h3{ margin:0; font-size:18px; }
+    .voucher .sub{ margin:6px 0 0 0; color:var(--muted); font-size: 13px; line-height:1.35; }
+    .seal{
+      border-radius: 999px;
+      padding:9px 11px;
+      border: 1px dashed rgba(242,210,122,.75);
+      color: var(--gold);
+      font-weight: 950;
+      background: rgba(0,0,0,.18);
+      font-size: 12px;
+    }
+    .vGrid{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px; }
+    .vBox{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      padding:12px;
+    }
+    .vBox h4{ margin:0 0 6px 0; font-size: 12px; color: var(--gold); letter-spacing:.2px; }
+    .vBox p{ margin:0; font-size: 13px; line-height:1.35; }
+
+    /* Bottom nav (mobile app feel) */
+    .bottomBar{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(5,14,10,.10), rgba(5,14,10,.85));
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,.10);
+      z-index: 5;
+    }
+    .bottomInner{
+      max-width:960px;
+      margin:0 auto;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .navBtn{
+      flex:1;
+      border:none;
+      border-radius: 16px;
+      min-height: 52px;
+      padding:12px 12px;
+      font-weight: 950;
+      cursor:pointer;
+      color: var(--text);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .navBtn.primary{
+      background: linear-gradient(180deg, rgba(232,75,75,.30), rgba(232,75,75,.12));
+      border-color: rgba(232,75,75,.55);
+    }
+    .navBtn.secondary{
+      background: rgba(47,208,122,.12);
+      border-color: rgba(47,208,122,.45);
+    }
+    .navBtn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    @media (min-width: 900px){
+      .wrap{ padding-bottom: 30px; }
+      .bottomBar{ position:static; padding:0; background:none; border-top:none; backdrop-filter:none; }
+      .bottomInner{ margin-top:12px; }
+    }
+
+    @media print{
+      body{ background:#fff; color:#000; }
+      .snow, header, .card:not(#voucherCard), .bottomBar { display:none !important; }
+      .wrap{ padding:0; max-width:none; }
+      #voucherCard{ box-shadow:none; border:none; background:#fff; }
+      .voucher{ box-shadow:none; border: 2px solid #000; background:#fff; }
+      .vBox{ border:1px solid #000; background:#fff; }
+      a{ color:#000; text-decoration:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="snow" id="snow"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="topRow">
+        <div>
+          <h1>🎄 Weihnachts-Gutscheinreise für Risna</h1>
+          <p>Romantisch, cozy und mit einem Restaurant-Highlight – du wählst, am Ende erscheint der Gutschein.</p>
+        </div>
+        <div class="badge">✨ Frohe Weihnachten ✨</div>
+      </div>
+
+      <div class="progress" id="steps">
+        <span class="chip active" data-step="1"><span class="dot"></span> Ziel</span>
+        <span class="chip" data-step="2"><span class="dot"></span> Nächte</span>
+        <span class="chip" data-step="3"><span class="dot"></span> Restaurant</span>
+        <span class="chip" data-step="4"><span class="dot"></span> Gutschein</span>
+      </div>
+    </header>
+
+    <div class="card" id="mainCard">
+      <div class="sectionTitle">
+        <h2 id="headline">1) Reiseziel auswählen</h2>
+        <p class="hint" id="hint">Tippe eine Stadt an.</p>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="step1">
+        <div class="choices" id="cityChoices"></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step2" style="display:none;">
+        <div class="choices" id="nightChoices"></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="step3" style="display:none;">
+        <div class="pillRow">
+          <span class="pill">Stadt: <b id="pillCity">–</b></span>
+          <span class="pill">Nächte: <b id="pillNights">–</b></span>
+        </div>
+
+        <div class="sectionTitle" style="margin-top:6px;">
+          <h2>3) 1 Restaurant auswählen</h2>
+          <p class="hint">Urig oder Sushi – genau eins (Maps-Link ist dabei).</p>
+        </div>
+
+        <div class="restaurants" id="restaurantList"></div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="step4" style="display:none;">
+        <div class="pillRow">
+          <span class="pill">Ziel: <b id="sumCity">–</b></span>
+          <span class="pill">Nächte: <b id="sumNights">–</b></span>
+          <span class="pill">Restaurant: <b id="sumRestaurant">–</b></span>
+        </div>
+
+        <div class="sectionTitle">
+          <h2>4) Gutschein</h2>
+          <p class="hint">„Gutschein anzeigen“ – und wenn du willst: direkt drucken.</p>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="btnShowVoucher" style="flex:1;">🎁 Gutschein anzeigen</button>
+          <button class="btn" id="btnPrint" style="flex:1; display:none;">🖨️ Drucken</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voucher -->
+    <div class="card" id="voucherCard" style="display:none;">
+      <div id="voucherMount"></div>
+      <p class="hint" style="margin:10px 2px 0 2px;">Tipp: Auf dem Handy ist ein Screenshot oft schon perfekt. 💛</p>
+    </div>
+
+    <!-- Bottom navigation -->
+    <div class="bottomBar">
+      <div class="bottomInner">
+        <button class="navBtn" id="btnBack">← Zurück</button>
+        <button class="navBtn primary" id="btnNext">Weiter →</button>
+        <button class="navBtn secondary" id="btnReset">Neu</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Data
+    // -----------------------------
+    const cities = [
+      { key:"bremen",   label:"Bremen",    subtitle:"Schnoor, Marktplatz & Lichter" },
+      { key:"hamburg",  label:"Hamburg",   subtitle:"Hafenluft & Großstadtglanz" },
+      { key:"oldenburg",label:"Oldenburg", subtitle:"Innenstadt & Hafenflair" }
+    ];
+
+    const nights = [
+      { value:1, label:"1 Nacht", subtitle:"Kurztrip – viel Weihnachtszauber" },
+      { value:2, label:"2 Nächte", subtitle:"Entspannt – Zeit für extra Genuss" }
+    ];
+
+    // Google Maps (ohne API Key)
+    const q = (s) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s);
+
+    // Mehr Restaurants je Stadt (urig + sushi, zentral/nah dran)
+    const restaurantData = {
+      bremen: [
+        // urig/cozy
+        { id:"br-ratskeller", name:"Bremer Ratskeller", type:"urig", area:"Altstadt / sehr zentral", note:"Traditionell, urig – perfekt für Winterabende.", maps:q("Bremer Ratskeller") },
+        { id:"br-schuettinger", name:"Schüttinger Gasthausbrauerei", type:"urig", area:"Innenstadt / zentral", note:"Brauhaus-Atmosphäre, rustikal-gemütlich.", maps:q("Schüttinger Gasthausbrauerei Bremen") },
+        { id:"br-kleiner-olymp", name:"Kleiner Olymp", type:"urig", area:"Schnoor / zentral", note:"Mitten im Schnoor – sehr stimmungsvoll zum Schlendern.", maps:q("Kleiner Olymp Bremen") },
+        { id:"br-teestuebchen", name:"Teestübchen im Schnoor", type:"urig", area:"Schnoor / zentral", note:"Klein, kuschelig – perfekt für cozy Stimmung.", maps:q("Teestübchen im Schnoor Bremen") },
+        { id:"br-das-kleine-lokal", name:"Das Kleine Lokal", type:"urig", area:"zentral", note:"Gemütlich & genussig (Ideal „Date Night“-Vibe).", maps:q("Das Kleine Lokal Bremen") },
+
+        // sushi/japan
+        { id:"br-yakumi", name:"Yakumi", type:"sushi", area:"zentral", note:"Japanisch/Sushi – häufig in Empfehlungen zu finden.", maps:q("Yakumi Bremen") },
+        { id:"br-akashi", name:"Akashi Japanese – Restaurant & Izakaya", type:"sushi", area:"Überseestadt (gut erreichbar)", note:"Izakaya-Vibes + Sushi, sehr beliebt.", maps:q("Akashi Japanese Restaurant Izakaya Bremen") },
+        { id:"br-jagoya", name:"JagoYa", type:"sushi", area:"zentral", note:"Sushi-Option, taucht in städtischen Asia-Tipps auf.", maps:q("JagoYa Bremen") },
+        { id:"br-sakura", name:"Sakura Sushi", type:"sushi", area:"zentral", note:"Klassische Sushi-Adresse (auch in Listen).", maps:q("Sakura Sushi Bremen") },
+        { id:"br-ani-house", name:"Ani House", type:"sushi", area:"zentral", note:"Asiatisch/Japanisch – gute Alternative.", maps:q("Ani House Bremen") }
+      ],
+
+      hamburg: [
+        // urig/cozy
+        { id:"hh-plat-du-jour", name:"Plat du Jour", type:"urig", area:"Innenstadt-nah", note:"Urig & cozy – richtig gut für „Herbst/Winter-Comfort“.", maps:q("Plat du Jour Hamburg") },
+        { id:"hh-das-dorf", name:"Das Dorf", type:"urig", area:"Hamburg (gut erreichbar)", note:"Holz, Wärme, Wohlfühl-Vibes – sehr „urig“.", maps:q("Das Dorf Hamburg Restaurant") },
+        { id:"hh-altes-maedchen", name:"Altes Mädchen", type:"urig", area:"Schanzenviertel (nah dran)", note:"Brauhaus/Beer & Food – lebendig & gemütlich.", maps:q("Altes Mädchen Hamburg") },
+        { id:"hh-cafe-paris", name:"Café Paris", type:"urig", area:"Altstadt / zentral", note:"Klassiker in der Altstadt – sehr atmosphärisch.", maps:q("Café Paris Hamburg Rathausstraße") },
+        { id:"hh-hadleys", name:"Hadley’s", type:"urig", area:"Rotherbaum (zentral)", note:"Gemütlich, warm, perfekt für Date-Abend.", maps:q("Hadley's Hamburg Beim Schlump") },
+
+        // sushi/japan
+        { id:"hh-kogai", name:"Kogai Sushi", type:"sushi", area:"Gänsemarkt / Innenstadt", note:"Innenstadt-Spot – beliebt und gut erreichbar.", maps:q("Kogai Sushi Hamburg") },
+        { id:"hh-henssler", name:"Henssler & Henssler", type:"sushi", area:"zentral-nah", note:"Bekanntes Sushi – oft empfohlen.", maps:q("Henssler & Henssler Hamburg") },
+        { id:"hh-jamjam", name:"Jam Jam", type:"sushi", area:"zentral", note:"Sushi (u.a. Laufband) – macht Spaß als Gutschein-Date.", maps:q("Jam Jam Sushi Hamburg") },
+        { id:"hh-tokio-sushi", name:"Tokio Sushi", type:"sushi", area:"zentral", note:"Gute Preis/Leistung – häufig empfohlen.", maps:q("Tokio Sushi Hamburg") },
+        { id:"hh-nikkei", name:"Nikkei Nine", type:"sushi", area:"Innenstadt / zentral", note:"Modern & fancy – wenn’s etwas „wow“ sein soll.", maps:q("Nikkei Nine Hamburg") }
+      ],
+
+      oldenburg: [
+        // urig/cozy
+        { id:"ol-ratskeller", name:"Ratskeller Oldenburg", type:"urig", area:"Marktplatz / mitten im Zentrum", note:"Gutbürgerlich, historisch – sehr weihnachtstauglich.", maps:q("Ratskeller Oldenburg Markt 1") },
+        { id:"ol-kaiserkueche", name:"Kaiserküche", type:"urig", area:"Innenstadt", note:"Gemütlich & regional – klassisch-date-tauglich.", maps:q("Kaiserküche Oldenburg") },
+        { id:"ol-kleine-burg", name:"Kleine Burg", type:"urig", area:"Innenstadt", note:"Beliebte Adresse, sehr zentral gelegen.", maps:q("Kleine Burg Oldenburg") },
+        { id:"ol-hafenhaus", name:"Hafenhaus Oldenburg", type:"urig", area:"Hafen (nah zur City)", note:"Wasserblick + gemütliche Stimmung.", maps:q("Hafenhaus Oldenburg") },
+        { id:"ol-meshi", name:"MESHI (Hafen)", type:"urig", area:"Hafen (nah zur City)", note:"Crossover & Drinks – abends super Atmosphäre.", maps:q("MESHI Oldenburg") },
+
+        // sushi/japan
+        { id:"ol-umami", name:"UMAMI Oldenburg", type:"sushi", area:"zentral", note:"Japanisch/Sushi – oft sehr gelobt.", maps:q("UMAMI Oldenburg") },
+        { id:"ol-moto", name:"Moto Kitchen", type:"sushi", area:"zentral", note:"Japanisch/Sushi – starke Option.", maps:q("Moto Kitchen Oldenburg") },
+        { id:"ol-moskito", name:"Moskito", type:"sushi", area:"zentral", note:"Sushi-Adresse, taucht in mehreren Listen auf.", maps:q("Moskito Oldenburg Sushi") },
+        { id:"ol-akino", name:"Akino", type:"sushi", area:"zentral", note:"Beliebt in lokalen Sushi-Guides.", maps:q("Akino Oldenburg Sushi") },
+        { id:"ol-oono", name:"Oono Sushi", type:"sushi", area:"zentral", note:"Ebenfalls in lokalen Empfehlungen zu finden.", maps:q("Oono Sushi Oldenburg") }
+      ]
+    };
+
+    // -----------------------------
+    // State
+    // -----------------------------
+    const state = {
+      step: 1,
+      cityKey: null,
+      nights: null,
+      restaurantId: null
+    };
+
+    // -----------------------------
+    // DOM helpers
+    // -----------------------------
+    const $ = (id) => document.getElementById(id);
+
+    const elSteps = $("steps");
+    const elHeadline = $("headline");
+    const elHint = $("hint");
+
+    const elStep1 = $("step1");
+    const elStep2 = $("step2");
+    const elStep3 = $("step3");
+    const elStep4 = $("step4");
+
+    const elCityChoices = $("cityChoices");
+    const elNightChoices = $("nightChoices");
+    const elRestaurantList = $("restaurantList");
+
+    const elPillCity = $("pillCity");
+    const elPillNights = $("pillNights");
+
+    const elSumCity = $("sumCity");
+    const elSumNights = $("sumNights");
+    const elSumRestaurant = $("sumRestaurant");
+
+    const btnBack = $("btnBack");
+    const btnNext = $("btnNext");
+    const btnReset = $("btnReset");
+
+    const btnShowVoucher = $("btnShowVoucher");
+    const btnPrint = $("btnPrint");
+    const voucherCard = $("voucherCard");
+    const voucherMount = $("voucherMount");
+
+    function cityLabel(key){
+      const c = cities.find(x => x.key === key);
+      return c ? c.label : "–";
+    }
+    function getRestaurant(){
+      const list = restaurantData[state.cityKey] || [];
+      return list.find(r => r.id === state.restaurantId) || null;
+    }
+
+    // -----------------------------
+    // Step control
+    // -----------------------------
+    function setStep(step){
+      state.step = step;
+
+      [...elSteps.querySelectorAll(".chip")].forEach(ch => {
+        const s = Number(ch.dataset.step);
+        ch.classList.toggle("active", s === state.step);
+        ch.classList.toggle("done", s < state.step);
+      });
+
+      elStep1.style.display = (step === 1) ? "" : "none";
+      elStep2.style.display = (step === 2) ? "" : "none";
+      elStep3.style.display = (step === 3) ? "" : "none";
+      elStep4.style.display = (step === 4) ? "" : "none";
+
+      voucherCard.style.display = (step === 4 && voucherMount.innerHTML.trim()) ? "" : "none";
+
+      if(step === 1){ elHeadline.textContent="1) Reiseziel auswählen"; elHint.textContent="Tippe eine Stadt an."; }
+      if(step === 2){ elHeadline.textContent="2) Reisezeitraum auswählen"; elHint.textContent="Wie viele Nächte?"; }
+      if(step === 3){ elHeadline.textContent="3) Restaurant auswählen"; elHint.textContent="Genau 1 auswählen (urig oder Sushi)."; }
+      if(step === 4){ elHeadline.textContent="4) Gutschein"; elHint.textContent="Gutschein anzeigen oder drucken."; }
+
+      renderSummary();
+      updateNavButtons();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateNavButtons(){
+      btnBack.disabled = (state.step === 1);
+
+      // Next is enabled only if current step has selection
+      let ok = false;
+      if(state.step === 1) ok = !!state.cityKey;
+      if(state.step === 2) ok = !!state.nights;
+      if(state.step === 3) ok = !!state.restaurantId;
+      if(state.step === 4) ok = true;
+
+      btnNext.disabled = !ok;
+
+      btnNext.textContent = (state.step === 4) ? "Fertig ✓" : "Weiter →";
+    }
+
+    // -----------------------------
+    // Render
+    // -----------------------------
+    function renderCityChoices(){
+      elCityChoices.innerHTML = "";
+      cities.forEach(c => {
+        const b = document.createElement("button");
+        b.className = "btn" + (state.cityKey === c.key ? " selected" : "");
+        b.type = "button";
+        b.innerHTML = `${c.label}<small>${c.subtitle}</small>`;
+        b.onclick = () => {
+          state.cityKey = c.key;
+          state.restaurantId = null; // reset if changing city
+          renderCityChoices();
+          renderSummary();
+          updateNavButtons();
+        };
+        elCityChoices.appendChild(b);
+      });
+    }
+
+    function renderNightChoices(){
+      elNightChoices.innerHTML = "";
+      nights.forEach(n => {
+        const b = document.createElement("button");
+        b.className = "btn" + (state.nights === n.value ? " selected" : "");
+        b.type = "button";
+        b.innerHTML = `${n.label}<small>${n.subtitle}</small>`;
+        b.onclick = () => {
+          state.nights = n.value;
+          renderNightChoices();
+          renderSummary();
+          updateNavButtons();
+        };
+        elNightChoices.appendChild(b);
+      });
+    }
+
+    function renderRestaurants(){
+      elPillCity.textContent = cityLabel(state.cityKey);
+      elPillNights.textContent = state.nights ? String(state.nights) : "–";
+
+      const list = restaurantData[state.cityKey] || [];
+      elRestaurantList.innerHTML = "";
+
+      list.forEach(r => {
+        const item = document.createElement("div");
+        item.className = "rItem" + (state.restaurantId === r.id ? " selected" : "");
+        item.innerHTML = `
+          <div class="rLeft">
+            <p class="rName">${r.name}</p>
+            <p class="rMeta">${r.area} • ${r.note}</p>
+            <div class="rLinks">
+              <a href="${r.maps}" target="_blank" rel="noopener">📍 Maps</a>
+              <span class="rMeta">Tippen = auswählen</span>
+            </div>
+          </div>
+          <span class="tag ${r.type === "urig" ? "urig" : "sushi"}">${r.type === "urig" ? "urig" : "sushi"}</span>
+        `;
+        item.onclick = () => {
+          state.restaurantId = r.id;
+          renderRestaurants();
+          renderSummary();
+          updateNavButtons();
+        };
+        elRestaurantList.appendChild(item);
+      });
+    }
+
+    function renderSummary(){
+      elSumCity.textContent = cityLabel(state.cityKey);
+      elSumNights.textContent = state.nights ? `${state.nights} Nacht${state.nights === 1 ? "" : "en"}` : "–";
+      const r = getRestaurant();
+      elSumRestaurant.textContent = r ? r.name : "–";
+    }
+
+    // -----------------------------
+    // Voucher
+    // -----------------------------
+    function showVoucher(){
+      if(!state.cityKey || !state.nights || !state.restaurantId){
+        alert("Bitte Ziel, Nächte und 1 Restaurant auswählen 🙂");
+        return;
+      }
+      const city = cityLabel(state.cityKey);
+      const nightsTxt = `${state.nights} Nacht${state.nights === 1 ? "" : "en"}`;
+      const r = getRestaurant();
+
+      voucherMount.innerHTML = `
+        <div class="voucher" id="voucher">
+          <div class="voucherTop">
+            <div>
+              <h3>🎁 Gutschein: Kleine Reise für Risna</h3>
+              <p class="sub">
+                Ein kleiner, erholsamer Reise ohne andere Leute - nur zu zweit mit Sven.
+                <br/>Wir finden einen Termin - vielleicht ja noch nächste Woche. 💛
+              </p>
+            </div>
+            <div class="seal">🎄 ab sofort</div>
+          </div>
+
+          <div class="vGrid">
+            <div class="vBox">
+              <h4>Reiseziel</h4>
+              <p><b>${city}</b></p>
+            </div>
+            <div class="vBox">
+              <h4>Reisezeitraum</h4>
+              <p><b>${nightsTxt}</b> (Termin nach Wunsch)</p>
+            </div>
+            <div class="vBox">
+              <h4>Restaurant (zentral)</h4>
+              <p><b>${r ? r.name : "—"}</b><br/>
+              <span style="color:rgba(247,243,234,.92)">${r ? r.area : ""}</span><br/>
+              <a href="${r ? r.maps : "#"}" target="_blank" rel="noopener">📍 In Google Maps öffnen</a>
+              </p>
+            </div>
+            <div class="vBox">
+              <h4>„Kleingedrucktes“</h4>
+              <p>Beinhaltet: Reise, Restaurantbesuch und Zeit zu zweit. Alles andere planen wir zusammen ganz entspannt. ✨</p>
+            </div>
+          </div>
+
+          <p class="hint" style="margin:10px 2px 0 2px;">
+            ❤️ PS: Natürlich sind auch andere schöne Dinge mit dabei - ich liebe dich!.
+          </p>
+        </div>
+      `;
+
+      voucherCard.style.display = "";
+      btnPrint.style.display = "";
+      voucherCard.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+
+    // -----------------------------
+    // Navigation actions
+    // -----------------------------
+    btnBack.onclick = () => {
+      if(state.step > 1) setStep(state.step - 1);
+    };
+
+    btnNext.onclick = () => {
+      if(state.step === 1 && state.cityKey) { setStep(2); return; }
+      if(state.step === 2 && state.nights) { renderRestaurants(); setStep(3); return; }
+      if(state.step === 3 && state.restaurantId) { setStep(4); return; }
+      if(state.step === 4) { /* nothing */ }
+    };
+
+    btnReset.onclick = () => {
+      state.step = 1;
+      state.cityKey = null;
+      state.nights = null;
+      state.restaurantId = null;
+      voucherMount.innerHTML = "";
+      voucherCard.style.display = "none";
+      btnPrint.style.display = "none";
+      renderCityChoices();
+      renderNightChoices();
+      renderSummary();
+      setStep(1);
+    };
+
+    btnShowVoucher.onclick = showVoucher;
+    btnPrint.onclick = () => window.print();
+
+    // -----------------------------
+    // Snow
+    // -----------------------------
+    function makeSnow(){
+      const snow = document.getElementById("snow");
+      const count = 42;
+      for(let i=0;i<count;i++){
+        const f = document.createElement("div");
+        f.className = "flake";
+        const left = Math.random()*100;
+        const size = 3 + Math.random()*6;
+        const duration = 7 + Math.random()*10;
+        const delay = -Math.random()*duration;
+        const drift = (Math.random()*120 - 60).toFixed(0) + "px";
+        f.style.left = left + "vw";
+        f.style.width = size + "px";
+        f.style.height = size + "px";
+        f.style.animationDuration = duration + "s";
+        f.style.animationDelay = delay + "s";
+        f.style.setProperty("--drift", drift);
+        f.style.opacity = (0.35 + Math.random()*0.6).toFixed(2);
+        snow.appendChild(f);
+      }
+    }
+
+    // init
+    makeSnow();
+    renderCityChoices();
+    renderNightChoices();
+    renderSummary();
+    setStep(1);
+  </script>
+</body>
+</html>
